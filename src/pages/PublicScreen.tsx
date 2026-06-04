@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Wheel } from 'react-custom-roulette';
+import { CustomWheel } from '../components/CustomWheel';
 import { supabase, type Premio } from '../services/supabase';
 import { RecentWinnersFeed } from '../components/RecentWinnersFeed';
 import { WinnerModal } from '../components/WinnerModal';
@@ -22,7 +22,7 @@ export function PublicScreen() {
   const [modalOpen, setModalOpen] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState({ donor: '', prize: '', isRare: false });
 
-  const { isMuted, toggleMute, playSpin, playWin, playClick } = useAudio();
+  const { isMuted, toggleMute, playSpin, playWin, playClick, playTick } = useAudio();
   const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
@@ -139,8 +139,6 @@ export function PublicScreen() {
     setMustSpin(false);
     playWin(winnerInfo.isRare);
     setModalOpen(true);
-    // Não chamamos fetchPremios aqui para evitar que a roleta seja atualizada e pule de posição 
-    // enquanto o prêmio está sendo exibido, causando confusão visual.
   };
 
   const handleFirstInteraction = () => {
@@ -154,15 +152,12 @@ export function PublicScreen() {
 
   // Preparar dados para o react-custom-roulette
   const wheelData = premios.map((p, idx) => ({
-    option: p.nome.length > 25 ? p.nome.substring(0, 25) + '...' : p.nome,
+    option: p.nome.length > 20 ? p.nome.substring(0, 20) + '...' : p.nome,
     style: { backgroundColor: backgroundColors[idx % backgroundColors.length], textColor: textColors[0] }
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E3F2FD] via-white to-[#E8F5E9] text-slate-800 overflow-hidden relative font-sans">
-      
-      {/* Elemento decorativo de Festa Junina */}
-      <div className="bandeirinhas"></div>
+    <div className="min-h-screen bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-200 text-slate-800 overflow-hidden relative font-sans">
 
       {!hasInteracted && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -179,9 +174,12 @@ export function PublicScreen() {
       )}
 
       {/* Header Institucional mais discreto */}
-      <header className="absolute top-10 left-6 z-10 flex gap-4 items-start w-[350px]">
-        <div className="bg-white/90 backdrop-blur-md border border-slate-200 rounded-2xl p-5 shadow-xl border-t-4 border-t-[#43A047]">
-          <h1 className="text-xl font-black text-[#0D47A1] mb-2 uppercase tracking-wide">Roleta Solidária</h1>
+      <header className="absolute top-10 left-10 z-10 flex gap-4 items-start w-[400px]">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden">
+          {/* Accent glow line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D47A1] to-[#43A047]"></div>
+          
+          <h1 className="text-2xl font-black text-[#0D47A1] mb-2 tracking-tight">Roleta Solidária</h1>
           <p className="text-slate-600 text-sm leading-relaxed font-medium">
             Sua contribuição se transforma em saúde e esperança. A cada R$ 10 você ganha 1 chance!
           </p>
@@ -192,7 +190,7 @@ export function PublicScreen() {
       {hasInteracted && (
         <button 
           onClick={toggleMute}
-          className="absolute top-10 right-6 z-10 bg-white/90 p-3 rounded-full text-[#0D47A1] hover:bg-slate-100 backdrop-blur border border-slate-200 shadow-lg transition-all"
+          className="absolute top-10 right-10 z-10 bg-white/80 p-4 rounded-full text-[#0D47A1] hover:bg-white backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all"
         >
           {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
         </button>
@@ -200,33 +198,23 @@ export function PublicScreen() {
 
       <div className="flex h-screen pt-16 pb-6 px-6 gap-8">
         {/* Lado Esquerdo: A Roleta GIGANTE */}
-        <div className="flex-1 flex items-center justify-center relative ml-32">
+        <div className="flex-1 flex items-center justify-center relative ml-48 mt-12">
           {/* Brilho de fundo */}
           <div className="absolute inset-0 bg-[#FFC107]/20 blur-[120px] rounded-full"></div>
           
           <div 
-            className={`scale-[1.65] transform transition-all duration-300 z-10 shadow-2xl rounded-full bg-white p-1 ${(!mustSpin && !isProcessing) ? 'cursor-pointer hover:scale-[1.7] hover:shadow-[0_0_30px_rgba(255,193,7,0.5)]' : ''}`}
+            className={`scale-[1.85] transform transition-all duration-300 z-10 shadow-2xl rounded-full bg-white p-1 ${(!mustSpin && !isProcessing) ? 'cursor-pointer hover:scale-[1.9] hover:shadow-[0_0_30px_rgba(255,193,7,0.5)]' : ''}`}
             onClick={handlePublicSpinClick}
           >
              {wheelData.length > 0 && (
-               <Wheel
+               <CustomWheel
                   key={premios.map(p => p.id).join('-')}
                   mustStartSpinning={mustSpin}
                   prizeNumber={prizeNumber}
                   data={wheelData}
                   onStopSpinning={handleSpinStop}
-                  backgroundColors={backgroundColors}
-                  textColors={textColors}
-                  outerBorderColor="#0D47A1"
-                  outerBorderWidth={6}
-                  innerBorderColor="#ffffff"
-                  innerRadius={15}
-                  radiusLineColor="#ffffff"
-                  radiusLineWidth={3}
-                  fontSize={18}
-                  perpendicularText={true}
-                  textDistance={75}
-                  spinDuration={0.6}
+                  onTick={playTick}
+                  spinDuration={6}
                />
              )}
           </div>

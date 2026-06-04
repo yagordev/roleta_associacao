@@ -54,11 +54,11 @@ export function RecentWinnersFeed({ isSpinning }: RecentWinnersFeedProps) {
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur border-2 border-[#0288D1]/20 rounded-3xl p-6 shadow-2xl h-full flex flex-col relative overflow-hidden">
-      <div className="absolute -top-10 -right-10 text-[#E3F2FD] opacity-50 rotate-12">
+    <div className="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] h-full flex flex-col relative overflow-hidden">
+      <div className="absolute -top-10 -right-10 text-slate-100 opacity-50 rotate-12">
         <Trophy size={180} />
       </div>
-      <h3 className="text-xl font-black text-[#0D47A1] mb-6 flex items-center gap-2 relative z-10">
+      <h3 className="text-xl font-black text-[#0D47A1] mb-6 flex items-center gap-2 relative z-10 tracking-tight">
         <Trophy size={24} className="text-[#FFC107]" /> ÚLTIMOS GANHADORES
       </h3>
       <div className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar relative z-10">
@@ -66,9 +66,9 @@ export function RecentWinnersFeed({ isSpinning }: RecentWinnersFeedProps) {
           <p className="text-slate-400 font-medium text-center mt-10">Nenhum ganhador ainda. Seja o primeiro!</p>
         ) : (
           winners.map((w) => (
-            <div key={w.id} className="bg-slate-50 p-4 rounded-xl border-l-4 border-l-[#43A047] shadow-sm animate-pop-in">
+            <div key={w.id} className="bg-white p-4 rounded-xl border-l-4 border-l-[#43A047] border border-slate-100 shadow-sm animate-pop-in">
               <p className="font-bold text-[#0D47A1] text-lg">{w.doador_nome}</p>
-              <p className="text-[#43A047] text-sm font-bold mt-1">Ganhou: <span className="text-slate-700 font-medium">{w.premio_nome}</span></p>
+              <p className="text-[#43A047] text-sm font-bold mt-1">Ganhou: <span className="text-slate-600 font-medium">{w.premio_nome}</span></p>
             </div>
           ))
         )}

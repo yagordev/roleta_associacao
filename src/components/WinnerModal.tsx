@@ -34,16 +34,18 @@ export function WinnerModal({ isOpen, donorName, prizeName, isRare, onClose }: W
         gravity={isRare ? 0.2 : 0.4}
         colors={['#0D47A1', '#43A047', '#0288D1', '#8BC34A', '#E53935', '#FFC107']}
       />
-      <div className="bg-white border-[6px] border-[#FFC107] rounded-3xl shadow-[0_0_50px_rgba(255,193,7,0.6)] p-12 text-center transform scale-110 relative overflow-hidden">
-        {/* Adorno de coração da logo atrás do texto se quiser, mas mantendo simples: */}
-        <h2 className="text-4xl font-extrabold text-[#E53935] mb-2 uppercase tracking-widest drop-shadow-sm">
+      <div className="bg-white/95 backdrop-blur-2xl border-[6px] border-[#FFC107] rounded-3xl shadow-[0_0_50px_rgba(255,193,7,0.6)] p-12 text-center transform scale-110 relative overflow-hidden">
+        {/* Glow de fundo no modal */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#43A047]/10 to-transparent"></div>
+        
+        <h2 className="text-4xl font-extrabold text-[#E53935] mb-2 uppercase tracking-widest drop-shadow-sm relative z-10">
           {isRare ? '🎉 GRANDE PRÊMIO! 🎉' : 'PARABÉNS!'}
         </h2>
-        <p className="text-6xl font-black text-[#0D47A1] my-6 drop-shadow-sm">
+        <p className="text-6xl font-black text-[#0D47A1] my-6 drop-shadow-sm relative z-10">
           {donorName}
         </p>
-        <p className="text-2xl text-slate-500 font-bold">você ganhou:</p>
-        <p className="text-5xl font-black text-[#43A047] mt-4 mb-2 drop-shadow-sm uppercase">
+        <p className="text-2xl text-slate-500 font-bold relative z-10">você ganhou:</p>
+        <p className="text-5xl font-black text-[#43A047] mt-4 mb-2 drop-shadow-sm uppercase relative z-10">
           {prizeName}
         </p>
       </div>
