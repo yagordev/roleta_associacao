@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { CustomWheel } from '../components/CustomWheel';
 import { supabase, type Premio } from '../services/supabase';
 import { RecentWinnersFeed } from '../components/RecentWinnersFeed';
+import { AvailablePrizesFeed } from '../components/AvailablePrizesFeed';
 import { WinnerModal } from '../components/WinnerModal';
 import { useAudio } from '../hooks/useAudio';
 import { useRouletteLogic } from '../hooks/useRouletteLogic';
@@ -78,7 +79,7 @@ export function PublicScreen() {
 
     const tenteOutraVez: Premio = {
       id: 'tente-outra-vez',
-      nome: 'Tente Outra Vez 🔄',
+      nome: 'Tente Outra Vez',
       quantidade_estoque: 999999, // Infinito
       peso: 15, // Peso para cair com certa frequência
       criado_em: ''
@@ -86,7 +87,7 @@ export function PublicScreen() {
 
     const perdeuAVez: Premio = {
       id: 'perdeu-a-vez',
-      nome: 'Perdeu a Vez 😢',
+      nome: 'Perdeu a Vez',
       quantidade_estoque: 999999, // Infinito
       peso: 10, // Menos frequente que o tente outra vez
       criado_em: ''
@@ -240,19 +241,6 @@ export function PublicScreen() {
         </div>
       )}
 
-      {/* Header Institucional mais discreto */}
-      <header className="absolute top-10 left-10 z-10 flex gap-4 items-start w-[400px]">
-        <div className="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden">
-          {/* Accent glow line */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D47A1] to-[#43A047]"></div>
-
-          <h1 className="text-2xl font-black text-[#0D47A1] mb-2 tracking-tight">Roleta Solidária</h1>
-          <p className="text-slate-600 text-sm leading-relaxed font-medium">
-            Sua contribuição se transforma em saúde e esperança. A cada R$ 10 você ganha 1 chance!
-          </p>
-        </div>
-      </header>
-
       {/* Indicador de Próximo da Fila */}
       {nextDonorName && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 bg-white/90 backdrop-blur-md px-8 py-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#FFC107]/50 flex items-center gap-3 animate-bounce">
@@ -275,9 +263,26 @@ export function PublicScreen() {
         </button>
       )}
 
-      <div className="flex h-screen pt-16 pb-6 px-6 gap-8">
-        {/* Lado Esquerdo: A Roleta GIGANTE */}
-        <div className="flex-1 flex items-center justify-center relative ml-48 mt-12">
+      {/* Layout Principal em 3 Colunas */}
+      <div className="flex h-screen pt-10 pb-10 px-10 gap-8 relative z-10">
+        
+        {/* Lado Esquerdo: Header + Prêmios */}
+        <div className="w-[380px] flex flex-col gap-6 shrink-0">
+          {/* Header Institucional */}
+          <div className="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden shrink-0">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D47A1] to-[#43A047]"></div>
+            <h1 className="text-2xl font-black text-[#0D47A1] mb-2 tracking-tight">Roleta Solidária</h1>
+            <p className="text-slate-600 text-sm leading-relaxed font-medium">
+              Sua contribuição se transforma em saúde e esperança. A cada R$ 10 você ganha 1 chance!
+            </p>
+          </div>
+
+          {/* Lista de Prêmios Disponíveis */}
+          <AvailablePrizesFeed premios={premios} />
+        </div>
+
+        {/* Centro: A Roleta GIGANTE */}
+        <div className="flex-1 flex items-center justify-center relative">
           {/* Brilho de fundo */}
           <div className="absolute inset-0 bg-[#FFC107]/20 blur-[120px] rounded-full"></div>
 
@@ -299,8 +304,8 @@ export function PublicScreen() {
           </div>
         </div>
 
-        {/* Lado Direito: Feed */}
-        <div className="w-[350px] z-10 mt-10">
+        {/* Lado Direito: Feed Vencedores */}
+        <div className="w-[380px] shrink-0">
           <RecentWinnersFeed isSpinning={mustSpin || isProcessing} />
         </div>
       </div>
