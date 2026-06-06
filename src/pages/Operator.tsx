@@ -22,7 +22,7 @@ export function Operator() {
     fetchDoadores();
 
     // Listen for spin events from the public screen to refresh the list automatically
-    const channel = supabase.channel('operator-events')
+    const channel = supabase.channel('roulette-events')
       .on('broadcast', { event: 'queue_updated' }, () => {
         fetchPremios();
         fetchDoadores();
