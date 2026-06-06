@@ -214,12 +214,18 @@ export function Operator() {
                 Estoque de Prêmios
                 <button onClick={fetchPremios} className="text-slate-400 hover:text-primary"><RefreshCw size={18} /></button>
               </h2>
+              <p className="text-xs text-slate-500 mb-4 bg-slate-50 p-3 rounded-lg border">
+                <strong>Nota:</strong> As porcentagens consideram os 25 pontos de peso fixos do sistema integrados na roleta (Tente Outra Vez: 15, Perdeu a Vez: 10). Não cadastre esses dois itens manualmente.
+              </p>
               <div className="space-y-3">
-                {premios.map(p => (
+                {premios.map(p => {
+                  const totalWeight = premios.reduce((acc, curr) => acc + curr.peso, 0) + 25;
+                  const percent = ((p.peso / totalWeight) * 100).toFixed(1);
+                  return (
                   <div key={p.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className={`font-medium ${p.quantidade_estoque === 0 ? 'text-red-500 line-through' : 'text-slate-800'}`}>{p.nome}</p>
-                      <p className="text-xs text-slate-500">Peso: {p.peso} | Estoque: {p.quantidade_estoque}</p>
+                      <p className="text-xs text-slate-500">Peso: {p.peso} <span className="font-bold text-[#0D47A1]">({percent}%)</span> | Estoque: {p.quantidade_estoque}</p>
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => iniciarEdicaoPremio(p)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar Prêmio">
@@ -230,7 +236,7 @@ export function Operator() {
                       </button>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
 

@@ -201,7 +201,7 @@ export function PublicScreen() {
 
   const handleSpinStop = () => {
     setMustSpin(false);
-    if (winnerInfo.prize === 'Perdeu a Vez 😢') {
+    if (winnerInfo.prize === 'Perdeu a Vez') {
       playLose();
     } else {
       playWin();
