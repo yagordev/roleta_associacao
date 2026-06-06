@@ -1,4 +1,4 @@
-import { Premio } from '../services/supabase';
+import type { Premio } from '../services/supabase';
 import { Gift } from 'lucide-react';
 
 interface Props {
