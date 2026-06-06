@@ -190,7 +190,7 @@ export function PublicScreen() {
 
   const handleSpinStop = () => {
     setMustSpin(false);
-    playWin(winnerInfo.isRare);
+    playWin();
     setModalOpen(true);
   };
 

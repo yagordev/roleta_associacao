@@ -95,7 +95,7 @@ export function useAudio() {
     // Agora o tick para sozinho, não precisamos mais pausar o som de giro contínuo
   };
 
-  const playWin = (isRare: boolean) => {
+  const playWin = () => {
     if (!isMuted) {
       if (applauseRef.current) {
         applauseRef.current.currentTime = 0;

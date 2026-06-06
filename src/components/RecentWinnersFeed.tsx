@@ -8,7 +8,6 @@ interface RecentWinnersFeedProps {
 
 export function RecentWinnersFeed({ isSpinning }: RecentWinnersFeedProps) {
   const [winners, setWinners] = useState<Ganhador[]>([]);
-  const [pendingWinners, setPendingWinners] = useState<Ganhador[]>([]);
   const isSpinningRef = useRef(isSpinning);
 
   useEffect(() => {

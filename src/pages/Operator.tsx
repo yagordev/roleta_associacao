@@ -8,13 +8,12 @@ export function Operator() {
   const [premios, setPremios] = useState<Premio[]>([]);
   const [doadores, setDoadores] = useState<Doador[]>([]);
   const { logout } = useAuth();
-  const { drawPrize, calculateSpins } = useRouletteLogic();
+  const { calculateSpins } = useRouletteLogic();
 
   // Formulário Prêmios
   const [novoPremio, setNovoPremio] = useState({ nome: '', qtd: 1, peso: 10 });
   // Formulário Doadores
   const [novoDoador, setNovoDoador] = useState({ nome: '', valor: 0 });
-  const [isSpinningId, setIsSpinningId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPremios();
