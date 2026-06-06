@@ -6,6 +6,7 @@ const APPLAUSE_URL = '/applause.mp3'; // Plateia aplaudindo
 const FIREWORKS_URL = '/fireworks.mp3'; // Fogos de artifício
 const TICK_URL = '/tick.mp3'; // O arquivo roubado da invertexto
 const CLICK_URL = 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b8f72a40.mp3'; // Som de clique/botão
+const FAIL_URL = 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_c6ccf3232f.mp3'; // Trombone triste
 
 export function useAudio() {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
@@ -13,6 +14,7 @@ export function useAudio() {
   const fireworksRef = useRef<HTMLAudioElement | null>(null);
   const clickRef = useRef<HTMLAudioElement | null>(null);
   const tickRef = useRef<HTMLAudioElement | null>(null);
+  const failRef = useRef<HTMLAudioElement | null>(null);
 
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false); // Used to check if user has interacted
@@ -38,12 +40,17 @@ export function useAudio() {
     tickRef.current.preload = 'auto';
     tickRef.current.volume = 0.8;
 
+    failRef.current = new Audio(FAIL_URL);
+    failRef.current.preload = 'auto';
+    failRef.current.volume = 0.6;
+
     return () => {
       bgmRef.current?.pause();
       applauseRef.current?.pause();
       fireworksRef.current?.pause();
       clickRef.current?.pause();
       tickRef.current?.pause();
+      failRef.current?.pause();
     };
   }, []);
 
@@ -53,6 +60,7 @@ export function useAudio() {
     if (fireworksRef.current) fireworksRef.current.muted = isMuted;
     if (clickRef.current) clickRef.current.muted = isMuted;
     if (tickRef.current) tickRef.current.muted = isMuted;
+    if (failRef.current) failRef.current.muted = isMuted;
   }, [isMuted]);
 
   const toggleMute = () => {
@@ -114,6 +122,18 @@ export function useAudio() {
     }
   };
 
+  const playLose = () => {
+    if (!isMuted) {
+      if (failRef.current) {
+        failRef.current.currentTime = 0;
+        failRef.current.play().catch(console.error);
+      }
+      setTimeout(() => {
+        if (bgmRef.current) bgmRef.current.volume = 0.5;
+      }, 1500);
+    }
+  };
+
   return {
     isMuted,
     toggleMute,
@@ -123,5 +143,6 @@ export function useAudio() {
     playSpin,
     stopSpin,
     playWin,
+    playLose,
   };
 }

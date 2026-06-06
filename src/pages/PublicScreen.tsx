@@ -22,7 +22,7 @@ export function PublicScreen() {
   const [modalOpen, setModalOpen] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState({ donor: '', prize: '', isRare: false });
 
-  const { isMuted, toggleMute, playSpin, playWin, playClick, playTick } = useAudio();
+  const { isMuted, toggleMute, playSpin, playWin, playLose, playClick, playTick } = useAudio();
   const [hasInteracted, setHasInteracted] = useState(false);
   const [nextDonorName, setNextDonorName] = useState<string | null>(null);
   const [remoteSpinTrigger, setRemoteSpinTrigger] = useState(0);
@@ -78,19 +78,27 @@ export function PublicScreen() {
 
     const tenteOutraVez: Premio = {
       id: 'tente-outra-vez',
-      nome: 'Tente Outra Vez',
+      nome: 'Tente Outra Vez 🔄',
       quantidade_estoque: 999999, // Infinito
       peso: 15, // Peso para cair com certa frequência
       criado_em: ''
     };
 
+    const perdeuAVez: Premio = {
+      id: 'perdeu-a-vez',
+      nome: 'Perdeu a Vez 😢',
+      quantidade_estoque: 999999, // Infinito
+      peso: 10, // Menos frequente que o tente outra vez
+      criado_em: ''
+    };
+
     if (data && data.length > 0) {
-      const todosPremios = [...(data as Premio[]), tenteOutraVez];
+      const todosPremios = [...(data as Premio[]), tenteOutraVez, perdeuAVez];
       setPremios(todosPremios);
       return todosPremios;
     } else {
       // Se não tiver prêmios, mocka um para não quebrar a roleta
-      const mock = [{ id: 'mock', nome: 'Sem Prêmios', quantidade_estoque: 1, peso: 1, criado_em: '' }, tenteOutraVez];
+      const mock = [{ id: 'mock', nome: 'Sem Prêmios', quantidade_estoque: 1, peso: 1, criado_em: '' }, tenteOutraVez, perdeuAVez];
       setPremios(mock);
       return mock;
     }
@@ -144,9 +152,11 @@ export function PublicScreen() {
             giros_restantes: doador.giros_restantes - 1
           }).eq('id', doador.id);
 
-          await supabase.from('premios').update({
-            quantidade_estoque: ganhador.quantidade_estoque - 1
-          }).eq('id', ganhador.id);
+          if (ganhador.id !== 'perdeu-a-vez') {
+            await supabase.from('premios').update({
+              quantidade_estoque: ganhador.quantidade_estoque - 1
+            }).eq('id', ganhador.id);
+          }
         }
 
         await supabase.from('ganhadores').insert([{
@@ -190,7 +200,11 @@ export function PublicScreen() {
 
   const handleSpinStop = () => {
     setMustSpin(false);
-    playWin();
+    if (winnerInfo.prize === 'Perdeu a Vez 😢') {
+      playLose();
+    } else {
+      playWin();
+    }
     setModalOpen(true);
   };
 
