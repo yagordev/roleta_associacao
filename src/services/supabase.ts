@@ -23,6 +23,7 @@ export type Doador = {
   valor_doado: number;
   giros_totais: number;
   giros_restantes: number;
+  codigo_acesso: string;
   criado_em: string;
 };
 

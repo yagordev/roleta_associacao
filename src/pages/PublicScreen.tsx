@@ -24,12 +24,50 @@ export function PublicScreen() {
 
   const { isMuted, toggleMute, playSpin, playWin, playClick, playTick } = useAudio();
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [nextDonorName, setNextDonorName] = useState<string | null>(null);
+  const [remoteSpinTrigger, setRemoteSpinTrigger] = useState(0);
 
   useEffect(() => {
     fetchPremios();
+    fetchNextDonor();
 
-    // (Removido o listener de 'spin' do operador, pois a roleta agora é clicada localmente)
-  }, []); // Executa apenas no mount
+    const eventsChannel = supabase.channel('roulette-events')
+      .on('broadcast', { event: 'queue_updated' }, () => {
+        fetchNextDonor();
+      })
+      .on('broadcast', { event: 'spin_now' }, () => {
+        setRemoteSpinTrigger(prev => prev + 1);
+      })
+      .on('broadcast', { event: 'premios_updated' }, () => {
+        fetchPremios();
+      })
+      .subscribe();
+
+    return () => { 
+      eventsChannel.unsubscribe(); 
+    };
+  }, []);
+
+  useEffect(() => {
+    if (remoteSpinTrigger > 0) {
+      handlePublicSpinClick();
+    }
+  }, [remoteSpinTrigger]);
+
+  const fetchNextDonor = async () => {
+    const { data } = await supabase
+      .from('doadores_giros')
+      .select('nome')
+      .gt('giros_restantes', 0)
+      .order('criado_em', { ascending: true })
+      .limit(1);
+      
+    if (data && data.length > 0) {
+      setNextDonorName(data[0].nome);
+    } else {
+      setNextDonorName(null);
+    }
+  };
 
   const { drawPrize } = useRouletteLogic();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -111,6 +149,9 @@ export function PublicScreen() {
           payload: {}
         });
         
+        // Atualiza a fila localmente também para ser rápido
+        fetchNextDonor();
+
         // 6. Prepara estado visual para o modal
         setWinnerInfo({
           donor: doador.nome,
@@ -185,6 +226,18 @@ export function PublicScreen() {
           </p>
         </div>
       </header>
+
+      {/* Indicador de Próximo da Fila */}
+      {nextDonorName && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 bg-white/90 backdrop-blur-md px-8 py-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#FFC107]/50 flex items-center gap-3 animate-bounce">
+          <span className="flex h-3 w-3 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#43A047] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-[#43A047]"></span>
+          </span>
+          <span className="text-slate-600 font-bold uppercase tracking-wide text-sm">É a vez de:</span>
+          <span className="text-[#0D47A1] font-black text-xl">{nextDonorName}</span>
+        </div>
+      )}
 
       {/* Botão de Som */}
       {hasInteracted && (

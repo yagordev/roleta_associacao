@@ -16,33 +16,11 @@ export function RecentWinnersFeed({ isSpinning }: RecentWinnersFeedProps) {
   }, [isSpinning]);
 
   useEffect(() => {
-    fetchWinners();
-
-    const subscription = supabase
-      .channel('ganhadores_changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ganhadores' }, (payload) => {
-        const newWinner = payload.new as Ganhador;
-        // Se a roleta estiver girando (ou prestes a), guardamos em pending
-        if (isSpinningRef.current) {
-          setPendingWinners(prev => [newWinner, ...prev]);
-        } else {
-          setWinners(prev => [newWinner, ...prev].slice(0, 5));
-        }
-      })
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []); // Executa apenas no mount
-
-  // Esvazia os pendentes assim que a roleta parar
-  useEffect(() => {
-    if (!isSpinning && pendingWinners.length > 0) {
-      setWinners(prev => [...pendingWinners, ...prev].slice(0, 5));
-      setPendingWinners([]);
+    // Busca os ganhadores na montagem e sempre que a roleta parar de girar
+    if (!isSpinning) {
+      fetchWinners();
     }
-  }, [isSpinning, pendingWinners]);
+  }, [isSpinning]);
 
   const fetchWinners = async () => {
     const { data } = await supabase

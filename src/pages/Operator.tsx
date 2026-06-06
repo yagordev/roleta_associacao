@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, type Premio, type Doador } from '../services/supabase';
 import { useRouletteLogic } from '../hooks/useRouletteLogic';
-import { LogOut, Plus, RefreshCw, Trash2, Clock } from 'lucide-react';
+import { LogOut, Plus, RefreshCw, Trash2, Clock, ArrowDownToLine } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function Operator() {
@@ -52,24 +52,37 @@ export function Operator() {
     }]);
     setNovoPremio({ nome: '', qtd: 1, peso: 10 });
     fetchPremios();
+    supabase.channel('roulette-events').send({ type: 'broadcast', event: 'premios_updated', payload: {} });
   };
 
   const deletePremio = async (id: string) => {
     await supabase.from('premios').delete().eq('id', id);
     fetchPremios();
+    supabase.channel('roulette-events').send({ type: 'broadcast', event: 'premios_updated', payload: {} });
   };
 
   const addDoador = async (e: React.FormEvent) => {
     e.preventDefault();
     const giros = calculateSpins(novoDoador.valor);
+    const codigo = Math.random().toString(36).substring(2, 6).toUpperCase();
+    
     await supabase.from('doadores_giros').insert([{ 
       nome: novoDoador.nome, 
       valor_doado: novoDoador.valor,
       giros_totais: giros,
-      giros_restantes: giros
+      giros_restantes: giros,
+      codigo_acesso: codigo
     }]);
     setNovoDoador({ nome: '', valor: 0 });
     fetchDoadores();
+  };
+
+  const pularDoador = async (id: string) => {
+    if (!window.confirm('Mover este jogador para o fim da fila? Ele não perderá os giros.')) return;
+    
+    await supabase.from('doadores_giros').update({ criado_em: new Date().toISOString() }).eq('id', id);
+    fetchDoadores();
+    supabase.channel('roulette-events').send({ type: 'broadcast', event: 'queue_updated', payload: {} });
   };
 
   return (
@@ -115,11 +128,25 @@ export function Operator() {
                   <div key={d.id} className="flex items-center justify-between p-3 border rounded-lg bg-slate-50">
                     <div>
                       <p className="font-medium text-slate-800">{d.nome}</p>
-                      <p className="text-sm text-slate-500">{d.giros_restantes} giros restantes</p>
+                      <p className="text-sm text-slate-500">
+                        {d.giros_restantes} giros restantes
+                        <span className="ml-3 inline-block bg-slate-200 px-2 py-0.5 rounded text-xs font-mono font-bold text-slate-700">
+                          CÓDIGO: {d.codigo_acesso || 'N/A'}
+                        </span>
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
-                      <Clock size={16} />
-                      <span className="text-sm font-semibold">Aguardando giro...</span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-2 py-1.5 rounded-lg border border-amber-100">
+                        <Clock size={16} />
+                        <span className="text-xs font-semibold">Aguardando</span>
+                      </div>
+                      <button 
+                        onClick={() => pularDoador(d.id)}
+                        title="Mover para o fim da fila"
+                        className="p-2 text-slate-400 hover:text-[#0D47A1] hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <ArrowDownToLine size={18} />
+                      </button>
                     </div>
                   </div>
                 ))}

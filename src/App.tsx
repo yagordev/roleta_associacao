@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { Operator } from './pages/Operator';
 import { PublicScreen } from './pages/PublicScreen';
+import { ClientRemote } from './pages/ClientRemote';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/tela-publica" replace />} />
           <Route path="/tela-publica" element={<PublicScreen />} />
+          <Route path="/celular" element={<ClientRemote />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/operador" 
