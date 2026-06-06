@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, type Premio, type Doador } from '../services/supabase';
 import { useRouletteLogic } from '../hooks/useRouletteLogic';
-import { LogOut, Plus, RefreshCw, Trash2, Clock, ArrowDownToLine } from 'lucide-react';
+import { LogOut, Plus, RefreshCw, Trash2, Clock, ArrowDownToLine, Pencil } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function Operator() {
@@ -12,6 +12,7 @@ export function Operator() {
 
   // Formulário Prêmios
   const [novoPremio, setNovoPremio] = useState({ nome: '', qtd: 1, peso: 10 });
+  const [premioEmEdicaoId, setPremioEmEdicaoId] = useState<string | null>(null);
   // Formulário Doadores
   const [novoDoador, setNovoDoador] = useState({ nome: '', valor: 0 });
 
@@ -44,14 +45,33 @@ export function Operator() {
 
   const addPremio = async (e: React.FormEvent) => {
     e.preventDefault();
-    await supabase.from('premios').insert([{ 
-      nome: novoPremio.nome, 
-      quantidade_estoque: novoPremio.qtd, 
-      peso: novoPremio.peso 
-    }]);
+    if (premioEmEdicaoId) {
+      await supabase.from('premios').update({ 
+        nome: novoPremio.nome, 
+        quantidade_estoque: novoPremio.qtd, 
+        peso: novoPremio.peso 
+      }).eq('id', premioEmEdicaoId);
+      setPremioEmEdicaoId(null);
+    } else {
+      await supabase.from('premios').insert([{ 
+        nome: novoPremio.nome, 
+        quantidade_estoque: novoPremio.qtd, 
+        peso: novoPremio.peso 
+      }]);
+    }
     setNovoPremio({ nome: '', qtd: 1, peso: 10 });
     fetchPremios();
     supabase.channel('roulette-events').send({ type: 'broadcast', event: 'premios_updated', payload: {} });
+  };
+
+  const iniciarEdicaoPremio = (p: Premio) => {
+    setPremioEmEdicaoId(p.id);
+    setNovoPremio({ nome: p.nome, qtd: p.quantidade_estoque, peso: p.peso });
+  };
+
+  const cancelarEdicao = () => {
+    setPremioEmEdicaoId(null);
+    setNovoPremio({ nome: '', qtd: 1, peso: 10 });
   };
 
   const deletePremio = async (id: string) => {
@@ -160,7 +180,7 @@ export function Operator() {
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
               <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                <Plus size={20} className="text-primary" /> Cadastrar Prêmio
+                <Plus size={20} className="text-primary" /> {premioEmEdicaoId ? 'Editar Prêmio' : 'Cadastrar Prêmio'}
               </h2>
               <form onSubmit={addPremio} className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
@@ -175,9 +195,16 @@ export function Operator() {
                   <label className="block text-sm text-slate-600 mb-1">Peso (Probabilidade)</label>
                   <input type="number" required min="1" value={novoPremio.peso} onChange={e => setNovoPremio({...novoPremio, peso: Number(e.target.value)})} className="w-full border rounded-lg p-2" />
                 </div>
-                <button type="submit" className="col-span-2 bg-slate-800 text-white rounded-lg py-2 hover:bg-slate-700 transition">
-                  Adicionar Prêmio
-                </button>
+                <div className="col-span-2 flex gap-3">
+                  <button type="submit" className="flex-1 bg-slate-800 text-white rounded-lg py-2 hover:bg-slate-700 transition font-medium">
+                    {premioEmEdicaoId ? 'Salvar Alterações' : 'Adicionar Prêmio'}
+                  </button>
+                  {premioEmEdicaoId && (
+                    <button type="button" onClick={cancelarEdicao} className="px-4 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition font-medium">
+                      Cancelar
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -193,9 +220,14 @@ export function Operator() {
                       <p className={`font-medium ${p.quantidade_estoque === 0 ? 'text-red-500 line-through' : 'text-slate-800'}`}>{p.nome}</p>
                       <p className="text-xs text-slate-500">Peso: {p.peso} | Estoque: {p.quantidade_estoque}</p>
                     </div>
-                    <button onClick={() => deletePremio(p.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => iniciarEdicaoPremio(p)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar Prêmio">
+                        <Pencil size={18} />
+                      </button>
+                      <button onClick={() => deletePremio(p.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Excluir Prêmio">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
