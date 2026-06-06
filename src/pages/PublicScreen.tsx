@@ -207,6 +207,7 @@ export function PublicScreen() {
       playWin();
     }
     setModalOpen(true);
+    fetchPremios(); // Atualiza a lista de prêmios após o giro terminar
   };
 
   const handleFirstInteraction = () => {

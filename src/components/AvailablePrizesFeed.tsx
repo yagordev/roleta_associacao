@@ -21,16 +21,14 @@ export function AvailablePrizesFeed({ premios }: Props) {
         <div className="bg-[#FFC107]/20 p-3 rounded-2xl text-[#E53935]">
           <Gift size={24} />
         </div>
-        <h2 className="text-xl font-bold text-slate-800">Prêmios em Estoque</h2>
+        <h2 className="text-xl font-bold text-slate-800">Prêmios Disponíveis</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-slate-200">
         {physicalPrizes.map((premio) => (
-          <div key={premio.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:scale-[1.02]">
+          <div key={premio.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-start gap-3 transition-all hover:scale-[1.02]">
+            <div className="w-2 h-2 rounded-full bg-[#43A047]"></div>
             <span className="font-bold text-slate-700">{premio.nome}</span>
-            <span className="bg-[#43A047]/10 text-[#43A047] px-3 py-1 rounded-full text-sm font-black border border-[#43A047]/20">
-              {premio.quantidade_estoque} un
-            </span>
           </div>
         ))}
         {physicalPrizes.length === 0 && (
