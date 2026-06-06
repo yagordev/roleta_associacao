@@ -20,16 +20,22 @@ export function useAudio() {
   useEffect(() => {
     // Initialize audio objects
     bgmRef.current = new Audio(BGM_URL);
+    bgmRef.current.preload = 'auto';
     bgmRef.current.loop = true;
     bgmRef.current.volume = 0.5;
 
     applauseRef.current = new Audio(APPLAUSE_URL);
+    applauseRef.current.preload = 'auto';
+    
     fireworksRef.current = new Audio(FIREWORKS_URL);
+    fireworksRef.current.preload = 'auto';
     
     clickRef.current = new Audio(CLICK_URL);
+    clickRef.current.preload = 'auto';
     clickRef.current.volume = 0.7;
 
     tickRef.current = new Audio(TICK_URL);
+    tickRef.current.preload = 'auto';
     tickRef.current.volume = 0.8;
 
     return () => {
@@ -101,10 +107,10 @@ export function useAudio() {
         fireworksRef.current.play().catch(console.error);
       }
       
-      // Return BGM volume to normal after 5 seconds
+      // Return BGM volume to normal after 1.5 seconds (quicker recovery)
       setTimeout(() => {
         if (bgmRef.current) bgmRef.current.volume = 0.5;
-      }, 5000);
+      }, 1500);
     }
   };
 
