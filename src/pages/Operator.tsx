@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase, type Premio, type Doador } from '../services/supabase';
 import { useRouletteLogic } from '../hooks/useRouletteLogic';
-import { LogOut, Plus, RefreshCw, Trash2, Clock, ArrowDownToLine, Pencil } from 'lucide-react';
+import { LogOut, Plus, RefreshCw, Trash2, Clock, ArrowDownToLine, Pencil, QrCode, Download } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function Operator() {
@@ -231,6 +232,40 @@ export function Operator() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* QR Code Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
+              <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2 w-full justify-start">
+                <QrCode size={20} className="text-primary" /> Acesso do Celular
+              </h2>
+              <p className="text-sm text-slate-500 mb-6 text-left w-full">Imprima ou salve a imagem abaixo para que as pessoas leiam o código e entrem na roleta.</p>
+              
+              <div className="bg-white p-4 rounded-xl shadow-sm border mb-6 inline-block" id="qrcode-container">
+                <QRCodeCanvas 
+                  id="qrcode-canvas"
+                  value={`${window.location.origin}/celular`} 
+                  size={180} 
+                  level="H" 
+                  includeMargin 
+                />
+              </div>
+              
+              <button 
+                onClick={() => {
+                  const canvas = document.getElementById('qrcode-canvas') as HTMLCanvasElement;
+                  if (canvas) {
+                    const url = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = 'QR_Code_Roleta_Solidaria.png';
+                    link.href = url;
+                    link.click();
+                  }
+                }}
+                className="w-full bg-[#0D47A1] text-white font-semibold rounded-lg py-3 hover:bg-[#0288D1] transition flex items-center justify-center gap-2"
+              >
+                <Download size={18} /> Baixar QR Code para Imprimir
+              </button>
             </div>
           </div>
         </div>
